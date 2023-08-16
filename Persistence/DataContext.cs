@@ -17,7 +17,14 @@ namespace Persistence
 
          public DbSet<ActivityAttendee>  ActivityAttendees{ get; set; }
 
-         protected override void OnModelCreating(ModelBuilder builder){
+         public DbSet<Photo> Photos{ get; set; }
+
+        public Task<int> SavingChangesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder){
        
            base.OnModelCreating(builder);
 
