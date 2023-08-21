@@ -20,7 +20,7 @@ namespace Application.comments
         {
 
             public string Body { get; set;}
-            public string ActivityId { get; set;}
+            public Guid ActivityId { get; set;}
         }
 
         public class CommandValidator : AbstractValidator<Command>
