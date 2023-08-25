@@ -21,6 +21,8 @@ namespace Persistence
 
          public DbSet<Comment> Comments{ get; set; }
 
+         public DbSet<UserFollowing> UserFollowings{ get; set; }
+
         public Task<int> SavingChangesAsync()
         {
             throw new NotImplementedException();
@@ -47,6 +49,23 @@ namespace Persistence
            .HasOne(a =>a.Activity)
            .WithMany(c =>c.Comments)
            .OnDelete(DeleteBehavior.Cascade);
+
+           builder.Entity<UserFollowing>(b =>
+           {
+            b.HasKey(k =>new {k.ObserverId,k.TargetId});
+
+            b.HasOne(O =>O.Observer)
+            .WithMany(f =>f.Followings)
+            .HasForeignKey(O => O.ObserverId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(O =>O.Target)
+            .WithMany(f =>f.Followers)
+            .HasForeignKey(O => O.TargetId)
+            .OnDelete(DeleteBehavior.Cascade);
+           }
+
+           );
          }
     }
 }
