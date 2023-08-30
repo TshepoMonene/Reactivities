@@ -4,7 +4,8 @@ import {toast} from 'react-toastify'
 import { router } from "../router/Routes";
 import { store } from "../stores/store";
 import { User, UserFormValues } from "../models/user";
-import { Photo, Profile } from "../models/profile";
+import { Photo, Profile, UserActivity } from "../models/profile";
+import { PaginatedResult } from "../models/Pagination";
 
 const sleep = (delay:number) =>{
     return new Promise((resolve) =>{
@@ -16,6 +17,11 @@ axios.defaults.baseURL='http://localhost:5000/api';
 
 axios.interceptors.response.use(async response=>{
    await sleep(1000);
+   const pagination = response.headers['pagination'];
+   if(pagination){
+    response.data = new PaginatedResult(response.data,JSON.parse(pagination));
+    return response as AxiosResponse<PaginatedResult<any>>
+   }
    return response;
 
 },(error:AxiosError)=>{
@@ -74,7 +80,8 @@ const request ={
 }
 
 const Activities ={
-    list:()=>request.get<Activity[]>('/activities'),
+    list:(params:URLSearchParams)=>axios.get<PaginatedResult<Activity[]>>('/activities',{params})
+    .then(responseBody),
     details:(id:string)=>request.get<Activity>(`/activities/${id}`),
     create:(activity: ActivityFormValues)=>request.post<void>('/activities', activity),
     update:(activity:ActivityFormValues)=>request.put<void>(`/activities/${activity.id}`,activity),
@@ -100,7 +107,10 @@ const Profiles ={
     setMainPhoto:(id:string) => request.post(`/photos/${id}/setMain`,{}),
     deletePhoto:(id:string) =>request.del(`/photos/${id}`),
     updateFollowing :(username :string) =>request.post(`/follow/${username}`,{}),
-    listFollowing:(username :string,predicate:string) => request.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
+    listFollowing:(username :string,predicate:string) => request.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
+    listActivities: (username: string, predicate: string) =>
+ request.get<UserActivity[]>(`/profiles/${username}/activities?
+predicate=${predicate}`)
 }
 
 const agent ={
